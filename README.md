@@ -2,45 +2,63 @@
 
 This application demonstrates how to use AWS Textract's `AnalyzeDocument` API (FORMS feature) to parse PDF forms, extract structured Key-Value pairs (including checkboxes), and display them in an Angular frontend.
 
-## Prerequisites
+## Technology Stack
 
+*   **Frontend**: Angular 16+ (Standalone Components), TypeScript, CSS (Flexbox/Grid).
+*   **Backend**: Node.js, Express.js.
+*   **AWS Services**:
+    *   **Amazon Textract**: Specifically the `StartDocumentAnalysis` API with `FeatureTypes: ["FORMS"]` for structured data extraction.
+    *   **Amazon S3**: For temporary storage of documents required by the asynchronous Textract API.
+*   **Libraries**:
+    *   `@aws-sdk/client-textract`: For interacting with Textract.
+    *   `@aws-sdk/client-s3`: For uploading files to S3.
+    *   `multer`: For handling file uploads in Express.
+
+## Architecture & Workflow
+
+The application follows a standard asynchronous processing flow to handle potentially multi-page PDF documents:
+
+1.  **File Upload**:
+    *   The user selects a PDF in the Angular frontend.
+    *   The file is sent to the Node.js backend via the `/analyze` endpoint using `FormData`.
+
+2.  **S3 Staging**:
+    *   The backend uploads the received file to a designated **Amazon S3 Bucket**.
+    *   This step is necessary because the asynchronous `StartDocumentAnalysis` API requires the input document to be in an S3 bucket (it cannot accept raw bytes for large files).
+
+3.  **Textract Analysis Job**:
+    *   The backend initiates a Textract job using `StartDocumentAnalysisCommand`.
+    *   **Key Configuration**: `FeatureTypes: ["FORMS"]` is enabled. This tells Textract to specifically look for key-value pairs (e.g., "Name: John Doe") and selection elements (checkboxes).
+
+4.  **Polling Validation**:
+    *   The backend polls the `GetDocumentAnalysisCommand` API every 1 second to check the Job Status.
+    *   Once the status changes to `SUCCEEDED`, the backend retrieves all result pages (handling pagination/NextToken).
+
+5.  **Data Parsing & Structured Output**:
+    *   The raw Textract JSON response consists of thousands of "Blocks" (`PAGE`, `LINE`, `WORD`, `KEY_VALUE_SET`, `SELECTION_ELEMENT`).
+    *   **Logic**:
+        *   The backend filters for `KEY_VALUE_SET` blocks tailored as `KEY`.
+        *   It traverses the `Relationships` to find the corresponding `VALUE` block.
+        *   **Checkboxes**: It detects `SELECTION_ELEMENT` blocks to determine if a box is `SELECTED` (`[X]`) or `NOT_SELECTED` (`[ ]`).
+        *   **Cleanup**: Key names are cleaned of OCR artifacts (e.g., leading "X"). Fields are sorted by their visual position on the page (Top-to-Bottom, Left-to-Right).
+    *   **Schema Generation**: Ideally, this structured data is used to generate a JSON Schema (`generated_schema.json`) that describes the form's structure for future validation.
+
+6.  **Response**:
+    *   The backend returns a unified JSON object containing both the raw `Blocks` (for the visual overlay) and the cleaned `StructuredData` (for the form table).
+    *   The Angular UI renders the text overlay on the PDF and populates the data table.
+
+## Deployment & Configuration
+
+### Prerequisites
 1.  **Node.js**: v14+ installed.
-2.  **AWS Account**: You need an active AWS account.
-3.  **AWS IAM User**: An IAM user with programmatic access (Access Key ID and Secret Access Key).
+2.  **AWS Account**: Active account with permissions to manage Textract and S3.
 
-## AWS Configuration
+### AWS Configuration
+1.  **IAM Permissions**: Ensure your user has `AmazonTextractFullAccess` and `AmazonS3FullAccess`.
+2.  **S3 Bucket**: Create a bucket (e.g., `textract-demo-bucket`) in your region (e.g., `us-east-1`).
 
-### 1. IAM Permissions
-Ensure your IAM user has the following permissions:
-*   `AmazonTextractFullAccess` (or `textract:AnalyzeDocument`, `textract:GetDocumentAnalysis`)
-*   `AmazonS3FullAccess` (or read/write access to the specific bucket you will use)
-
-### 2. S3 Bucket
-Create an S3 bucket (e.g., `textract-demo-bucket`) in your preferred region (e.g., `us-east-1`).
-*   This bucket is used to temporarily store PDFs for processing by Textract.
-*   **Note**: The application is configured to use a persistent bucket name defined in your `.env` file to avoid creating new buckets repeatedly.
-
-## Setup
-
-### 1. Clone/Download
-Ensure you have the project files locally.
-
-### 2. Backend Setup
-Navigate to the root directory (`textract_sample`) and install dependencies:
-```bash
-cd textract_sample
-npm install
-```
-
-### 3. Frontend Setup
-Navigate to the frontend directory (`textract-demo`) and install dependencies:
-```bash
-cd textract_sample/textract-demo
-npm install
-```
-
-### 4. Environment Variables
-Create a `.env` file in the **root** folder (`textract_sample/.env`) with your AWS credentials:
+### Environment Variables
+Create a `.env` file in the **root** folder (`textract_sample/.env`):
 
 ```env
 AWS_ACCESS_KEY_ID=your_access_key_id
@@ -49,32 +67,20 @@ AWS_REGION=us-east-1
 BUCKET_NAME=your_existing_s3_bucket_name
 ```
 
-*   Replace `your_access_key_id` and `your_secret_access_key` with your IAM credentials.
-*   Set `AWS_REGION` to the region where your bucket and Textract service are located (e.g., `us-east-1`).
-*   Set `BUCKET_NAME` to the name of the S3 bucket you created.
-
 ## Running the Application
 
-You need to run the backend and frontend in separate terminals.
-
-### Terminal 1: Backend API
+### Terminal 1: Backend
 ```bash
 cd textract_sample
+npm install
 node server.js
 ```
-*   The server will start on **port 3001**.
-*   It will verify your AWS connection on startup only if a file processing request occurs or you can inspect the logs.
+*   Server starts on **port 3001**.
 
-### Terminal 2: Frontend UI
+### Terminal 2: Frontend
 ```bash
 cd textract_sample/textract-demo
+npm install
 ng serve
 ```
-*   The Angular development server will start on **port 4200**.
-
-## Usage
-
-1.  Open your browser to `http://localhost:4200`.
-2.  Click **Choose File** and select a PDF form.
-3.  The text overlay will appear on the left.
-4.  Switch to the **Form Data** tab on the right to see the extracted fields, values, and checkbox statuses.
+*   Access the app at `http://localhost:4200`.
