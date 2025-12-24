@@ -1,0 +1,47 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+.split-view {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  overflow: hidden;
+  /* Prevent body scroll */
+}
+
+.pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+  overflow: auto;
+  /* Allow scrolling content (PDF or Text) */
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.loading {
+  color: blue;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}

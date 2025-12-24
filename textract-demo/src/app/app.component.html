@@ -1,0 +1,19 @@
+<div class="container">
+  <header>
+    <h1>AWS Textract PDF Demo</h1>
+    <input type="file" (change)="onFileSelected($event)" accept="application/pdf">
+    <div *ngIf="isLoading" class="loading">Processing with AWS Textract...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+  </header>
+
+  <div class="split-view" *ngIf="pdfUrl">
+    <div class="pane left-pane">
+      <h3>PDF Preview</h3>
+      <iframe [src]="pdfUrl" title="PDF Preview"></iframe>
+    </div>
+    <div class="pane right-pane">
+      <h3>Extracted Text (Relative Position)</h3>
+      <app-text-overlay [data]="textractData"></app-text-overlay>
+    </div>
+  </div>
+</div>
