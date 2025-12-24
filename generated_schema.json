@@ -3,9 +3,9 @@
   "title": "Generated Form Schema",
   "type": "object",
   "properties": {
-    "Mitigated/Downward Prison Duration": {
+    "Mitigated/Downward Prison Duration (Less than Guidelines time)": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
@@ -15,33 +15,27 @@
         "null"
       ]
     },
-    "Revised": {
+    "Consecutive (Departure from Guidelines policy on consecutive sentencing)": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "[ ] Consecutive (Departure from Guidelines policy on consecutive sentencing)": {
+    "Aggravated/Upward Prison Duration (Greater than Guidelines time)": {
       "type": [
-        "string",
-        "null"
-      ]
-    },
-    "[ ] Aggravated/Upward Prison Duration (Greater than Guidelines time)": {
-      "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Defendant waived right to jury determination of aggravating factors": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "Mitigated/Downward - Guidelines presume prison)": {
+    "Mitigated/Downward (Stay - Guidelines presume prison)": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
@@ -63,9 +57,9 @@
         "null"
       ]
     },
-    "[ ] Aggravated/Upward Length of Stay (Exceeds 5 yrs. or stat. max., whichever is less; Guidelines section 3.A.2.)": {
+    "Aggravated/Upward Length of Stay (Exceeds 5 yrs. or stat. max., whichever is less; Guidelines section 3.A.2.)": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
@@ -75,21 +69,9 @@
         "null"
       ]
     },
-    "Page": {
+    "Mitigated/Downward Non-Felony Sentence (Misdemeanor or Gross Misd. sentence pronounced for felony-level conviction)": {
       "type": [
-        "string",
-        "null"
-      ]
-    },
-    "[ ] Mitigated/Downward Non-Felony Sentence (Misdemeanor or Gross Misd. sentence pronounced for felony- level conviction)": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "Voice": {
-      "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
@@ -117,9 +99,9 @@
         "null"
       ]
     },
-    "[ ] Aggravated/Upward (Prison - Guidelines presume stay)": {
+    "Aggravated/Upward (Prison - Guidelines presume stay)": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
@@ -129,37 +111,19 @@
         "null"
       ]
     },
-    "Website": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "Jury determination of aggravating factors": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "[ ] NOT an aggravated/upward dispositional departure: Sentence was executed pursuant to offender's right to demand execution, offense date after 7/31/2015 (Guidelines section 2.D.1.f).": {
+    "NOT an aggravated/upward dispositional departure: Sentence was executed pursuant to offender's right to demand execution, offense date after 7/31/2015 (Guidelines section 2.D.1.f).": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Reason(s) for Departure": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "than Guidelines time)": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "Please submit by Email": {
       "type": [
         "string",
         "null"
@@ -179,337 +143,331 @@
     },
     "Prosecutor objects to the departure": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Shows remorse/accepts responsibility": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Crime less onerous than usual": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "offender or accomplice possessed firearm or other dangerous weapon during offense": {
+    "Offender or accomplice possessed firearm or other dangerous weapon during offense": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Prosecutor does not object to the departure": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Chem. dependency": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "involved manufacture for use by others": {
+    "Involved manufacture for use by others": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Current conviction is offense w/ victim injury (including Crim. Sex. Conduct) and there is a similar prior*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "high degree planning/soph./lengthy period of time": {
+    "High degree planning/soph./lengthy period of time": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Has failed on probation/unamenable to probation": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Victim was particularly vulnerable*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Position of authority, superiority, confidence or trust": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Crime more onerous than usual offense": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "similar prior conduct": {
+    "Similar prior conduct": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Recommended by treatment professional": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Request prison as part of a plea agreement": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Request prison--revocation/prison on another offense": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Multiple victims or multiple incidents per victim": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Witness is unlikely, unable, or unwilling to testify": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "sale to a minor or vulnerable adult": {
+    "Sale to a minor or vulnerable adult": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Recommendation or agreement of victim/victim's family": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Offender played minor or passive role*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Impose restitution/ensure financial penalties paid": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Committed, for hire, a crime against the person*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Victim injury/psychological impact on victim": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "high position in drug distribution hierarchy": {
+    "High position in drug distribution hierarchy": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Ensure compliance w/ probation or allow longer supervision": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Engrained Offender under Minn. Stat. § 609.3455, S. 3a": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Request prison--other reasons": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "actual/attempted loss greater than usual/than min.": {
+    "Actual/attempted loss greater than usual/than min.": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "offender or accomplice possessed equipment, para- phernalia, or monies evidencing wholesale trafficking": {
+    "Offender or accomplice possessed equipment, paraphernalia, or monies evidencing wholesale trafficking": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Victim was aggressor in incident*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Dangerous Offender under Minn. Stat. § 609.1095, S. 2": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Veteran amenable under Minn. Stat. § 609.1056, S. 4*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Plea agreement on sentence": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "prior conv. under Minn. Stat. $ 609.1095, S. 1(d), except prior under chap. 152, including attempt or conspiracy": {
+    "Prior conv. under Minn. Stat. § 609.1095, S. 1(d), except prior under chap. 152, including attempt or conspiracy": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Victim treated with particular cruelty*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "high degree of sophistication/lengthy period of time": {
+    "High degree of sophistication/lengthy period of time": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Departure recommended by prosecutor": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "separate acts in 3 or more counties": {
+    "Separate acts in 3 or more counties": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "3 or more separate transactions": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Request prison to avoid probation and/or jail": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Recommended by court services": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "Career Offender under Minn. Stat. $ 609.1095, S. 4": {
+    "Career Offender under Minn. Stat. § 609.1095, S. 4": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Crime committed in victim's home or zone of privacy": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Lacked substantial capacity for judgment (not drug/alc.)*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Prosecutor motion to sentence without regard to Minn. Stat. § 609.11": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Other": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Current Severity Level 1-4 offense and priors resulted from crime spree*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Particularly amenable to probation*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Committed crime as part of a group of three or more persons who all actively participated in the crime*": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "occurred in a zone or correctional/treat. facility": {
+    "Occurred in a zone or correctional/treat. facility": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "multiple victims/multiple incidents per victim": {
+    "Multiple victims/multiple incidents per victim": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
     "Prevent trauma to witness from testifying": {
       "type": [
-        "string",
+        "boolean",
         "null"
       ]
     },
-    "[ ] Convicted of controlled substance offense, is particularly amenable to probation based on adequate evidence that offender is chemically dependent and has been accepted by, and can respond to, a treatment program in accordance with Minn. Stat. $ 152.152*": {
+    "Convicted of controlled substance offense, is particularly amenable to probation based on adequate evidence that offender is chemically dependent and has been accepted by, and can respond to, a treatment program in accordance with Minn. Stat. § 152.152*": {
       "type": [
-        "string",
-        "null"
-      ]
-    },
-    "MSGC": {
-      "type": [
-        "string",
+        "boolean",
         "null"
       ]
     }

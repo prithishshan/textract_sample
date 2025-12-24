@@ -110,15 +110,12 @@ async function getAllAnalysisResults(jobId, initialResponse) {
     return blocks;
 }
 
-app.post('/analyze', upload.single('file'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded.');
-    }
 
-    const filePath = req.file.path;
-    const fileKey = `uploads/${Date.now()}-${req.file.originalname}`;
-
+// --- Helper Function for Textract Processing ---
+async function processFileWithTextract(filePath, originalName) {
+    const fileKey = `uploads/${Date.now()}-${originalName}`;
     let currentStep = 'INIT';
+
     try {
         currentStep = 'ENSURE_BUCKET';
         console.log('[1/4] Ensuring Bucket Exists...');
@@ -144,7 +141,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
                     Name: fileKey
                 }
             },
-            FeatureTypes: ["FORMS"] // Enable Form extraction
+            FeatureTypes: ["FORMS"]
         });
         const startResponse = await textract.send(startCommand);
 
@@ -157,12 +154,62 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
         const allBlocks = await getAllAnalysisResults(jobId, completedResponse);
         console.log(`[4/4] Done. Blocks: ${allBlocks.length}`);
 
-        // --- Parsing Logic ---
+        return allBlocks;
+    } catch (error) {
+        throw { step: currentStep, error };
+    }
+}
+
+// --- Endpoints ---
+
+// 1. New Endpoint: Returns Raw Blocks
+app.post('/analyze-blocks', upload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+    const filePath = req.file.path;
+
+    try {
+        const allBlocks = await processFileWithTextract(filePath, req.file.originalname);
+        res.json({ Blocks: allBlocks });
+    } catch (err) {
+        console.error("!!! PROCESSING ERROR (/analyze-blocks) !!!", err);
+        res.status(500).json({
+            error: 'Processing failed',
+            details: err.error?.message || err.message,
+            failedStep: err.step
+        });
+    } finally {
+        fs.unlink(filePath, () => { });
+    }
+});
+
+// 2. Refined Endpoint: Returns only Structured Data (with Booleans)
+app.post('/analyze', upload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+    const filePath = req.file.path;
+
+    try {
+        const allBlocks = await processFileWithTextract(filePath, req.file.originalname);
+
+        // --- Parsing Logic with Boolean Support ---
         const blockMap = {};
         allBlocks.forEach(b => blockMap[b.Id] = b);
 
-        const getText = (block, includeSelection = true) => {
+        const getTextOrBool = (block, includeSelection = true) => {
             if (!block.Relationships) return '';
+
+            // NEW LOGIC: If there is exactly ONE selection element, return its boolean status.
+            // This handles cases where Textract accidentally includes label text (e.g. "(Less...") in the value block.
+            const allChildren = block.Relationships
+                .filter(r => r.Type === 'CHILD')
+                .flatMap(r => r.Ids)
+                .map(id => blockMap[id]);
+
+            const selectionChildren = allChildren.filter(c => c.BlockType === 'SELECTION_ELEMENT');
+
+            if (includeSelection && selectionChildren.length === 1) {
+                return selectionChildren[0].SelectionStatus === 'SELECTED';
+            }
+
             let text = '';
             block.Relationships.forEach(rel => {
                 if (rel.Type === 'CHILD') {
@@ -171,6 +218,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
                         if (child.BlockType === 'WORD') {
                             text += child.Text + ' ';
                         } else if (includeSelection && child.BlockType === 'SELECTION_ELEMENT') {
+                            // Keep string representation for mixed content or multiple boxes
                             text += child.SelectionStatus === 'SELECTED' ? '[X] ' : '[ ] ';
                         }
                     });
@@ -187,7 +235,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
                     rel.Ids.forEach(childId => {
                         const child = blockMap[childId];
                         if (child.BlockType === 'SELECTION_ELEMENT') {
-                            status = child.SelectionStatus === 'SELECTED' ? '[X]' : '[ ]';
+                            status = child.SelectionStatus === 'SELECTED'; // Return boolean
                         }
                     });
                 }
@@ -198,70 +246,78 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
         const structuredData = {};
         let keys = allBlocks.filter(b => b.BlockType === 'KEY_VALUE_SET' && b.EntityTypes.includes('KEY'));
 
-        // Sort keys by Page, then Top, then Left
         keys.sort((a, b) => {
             if ((a.Page || 1) !== (b.Page || 1)) return (a.Page || 1) - (b.Page || 1);
-            if (Math.abs(a.Geometry.BoundingBox.Top - b.Geometry.BoundingBox.Top) > 0.005) { // 0.5 tolerance
+            if (Math.abs(a.Geometry.BoundingBox.Top - b.Geometry.BoundingBox.Top) > 0.005) {
                 return a.Geometry.BoundingBox.Top - b.Geometry.BoundingBox.Top;
             }
             return a.Geometry.BoundingBox.Left - b.Geometry.BoundingBox.Left;
         });
 
         keys.forEach(keyBlock => {
-            // Get Key Text EXCLUDING selection elements (to keep key clean)
-            // Also strip leading "X" words (OCR artifacts) or "[]" text
-            const keyText = getText(keyBlock, false)
+            const keyText = getTextOrBool(keyBlock, false)
                 .replace(/:$/, '')
-                .replace(/^[X]\s+/i, '') // Remove leading "X " (often misread checked box)
-                .replace(/^\[ ?[xX]? ?\]\s+/, ''); // Remove literal "[ ]", "[x]", "[X]" text
+                .replace(/^[X]\s+/i, '')
+                .replace(/^\[ ?[xX]? ?\]\s+/, '');
 
-            let valText = null;
+            let val = null;
             const valueRel = keyBlock.Relationships?.find(r => r.Type === 'VALUE');
             if (valueRel) {
                 const valueBlock = blockMap[valueRel.Ids[0]];
-                valText = getText(valueBlock, true);
+                val = getTextOrBool(valueBlock, true);
             }
 
-            // Fallback: If Value is empty/missing, check if the Key itself contains a selection
-            // (Common in checkboxes where the box is grouped with the label)
-            if (!valText) {
+            if (val === null || val === '') {
                 const keySelection = getSelectionStatusFromBlock(keyBlock);
-                if (keySelection) {
-                    valText = keySelection;
+                if (keySelection !== null) {
+                    val = keySelection;
                 }
             }
 
-            // Normalize empty value
-            if (valText === null) valText = '';
+            if (val === null) val = '';
 
             if (Object.prototype.hasOwnProperty.call(structuredData, keyText)) {
                 const existing = structuredData[keyText];
                 if (Array.isArray(existing)) {
-                    if (!existing.includes(valText)) {
-                        structuredData[keyText].push(valText);
+                    if (!existing.includes(val)) {
+                        structuredData[keyText].push(val);
                     }
-                } else if (existing !== valText) {
-                    structuredData[keyText] = [existing, valText];
+                } else if (existing !== val) {
+                    structuredData[keyText] = [existing, val];
                 }
             } else {
-                structuredData[keyText] = valText;
+                structuredData[keyText] = val;
             }
         });
-        // ---------------------
 
-        res.json({
-            Blocks: allBlocks,
-            StructuredData: structuredData
+        // --- Schema Normalization ---
+        const { findBestMatch } = require('./schemaMatcher');
+        const schema = require('./generated_schema.json');
+        const validKeys = Object.keys(schema.properties);
+
+        const normalizedData = {};
+
+        Object.keys(structuredData).forEach(extractedKey => {
+            const bestMatch = findBestMatch(extractedKey, validKeys);
+
+            if (bestMatch) {
+                normalizedData[bestMatch] = structuredData[extractedKey];
+            } else {
+                normalizedData[extractedKey] = structuredData[extractedKey];
+            }
         });
 
-    } catch (error) {
-        console.error("!!! PROCESSING ERROR !!!");
-        console.error("Failed at step:", currentStep);
+        res.json({
+            StructuredData: normalizedData,
+            Blocks: allBlocks
+        });
+
+    } catch (err) {
+        console.error("!!! PROCESSING ERROR (/analyze) !!!", err);
         res.status(500).json({
             error: 'Processing failed',
-            details: error.message,
-            failedStep: currentStep,
-            errorName: error.name
+            details: err.error?.message || err.message,
+            failedStep: err.step
         });
     } finally {
         fs.unlink(filePath, () => { });

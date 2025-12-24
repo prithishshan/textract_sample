@@ -52,7 +52,15 @@ interface PageData {
                   @for (item of formData(); track item.key) {
                     <tr>
                         <td>{{ item.key }}</td>
-                        <td>{{ item.value }}</td>
+                        <td>
+                          @if (isBoolean(item.value)) {
+                            <input type="checkbox" [checked]="item.value" disabled>
+                          } @else if (isArray(item.value)) {
+                             {{ item.value.join(', ') }}
+                          } @else {
+                             {{ item.value }}
+                          }
+                        </td>
                     </tr>
                   }
               </tbody>
@@ -155,6 +163,7 @@ export class TextOverlayComponent {
 
   formData = computed(() => {
     const rawData = this.data();
+    // rawData now contains { StructuredData, Blocks }
     return rawData && rawData.StructuredData ? this.processFormData(rawData.StructuredData) : [];
   });
 
@@ -180,10 +189,18 @@ export class TextOverlayComponent {
       .sort((a, b) => a.pageNumber - b.pageNumber);
   }
 
+  isBoolean(val: any): boolean {
+    return typeof val === 'boolean';
+  }
+
+  isArray(val: any): boolean {
+    return Array.isArray(val);
+  }
+
   private processFormData(structuredData: any): { key: string, value: any }[] {
     return Object.entries(structuredData).map(([key, value]) => ({
       key,
-      value: Array.isArray(value) ? value.join(', ') : value
+      value // Keep original value to check type in template
     }));
   }
 }
