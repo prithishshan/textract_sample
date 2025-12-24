@@ -36,12 +36,11 @@ The application follows a standard asynchronous processing flow to handle potent
 
 5.  **Data Parsing & Structured Output**:
     *   The raw Textract JSON response consists of thousands of "Blocks" (`PAGE`, `LINE`, `WORD`, `KEY_VALUE_SET`, `SELECTION_ELEMENT`).
-    *   **Logic**:
-        *   The backend filters for `KEY_VALUE_SET` blocks tailored as `KEY`.
-        *   It traverses the `Relationships` to find the corresponding `VALUE` block.
-        *   **Checkboxes**: It detects `SELECTION_ELEMENT` blocks to determine if a box is `SELECTED` (`[X]`) or `NOT_SELECTED` (`[ ]`).
-        *   **Cleanup**: Key names are cleaned of OCR artifacts (e.g., leading "X"). Fields are sorted by their visual position on the page (Top-to-Bottom, Left-to-Right).
-    *   **Schema Generation**: Ideally, this structured data is used to generate a JSON Schema (`generated_schema.json`) that describes the form's structure for future validation.
+    *   **Data Parsing & Schema Validation**:
+        *   **Fuzzy Matching**: extracted keys are compared against a canonical `generated_schema.json` using Levenshtein distance. This corrects OCR typos (e.g. `Sentenc Date` -> `Sentence Date`) and ensures consistent JSON keys.
+        *   **Boolean Extraction**: The parser specifically detects fields that contain checkboxes (Selection Elements). Even if a field contains mixed text (e.g., `[ ] (Less than...)`), the logic extracts the boolean state (`true`/`false`) while ignoring the noise.
+        *   **Pruning**: Extraneous page elements (Footers, Page numbers) defined in the schema are automatically filtered out.
+    *   **Schema Enforcement**: `generated_schema.json` acts as a strict contract, defining not just the keys but the *types* (e.g., `boolean` for checkboxes). This ensures the frontend receives predictable, type-safe data.
 
 6.  **Response**:
     *   The backend returns a unified JSON object containing both the raw `Blocks` (for the visual overlay) and the cleaned `StructuredData` (for the form table).
