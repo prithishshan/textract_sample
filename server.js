@@ -308,8 +308,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
         });
 
         res.json({
-            StructuredData: normalizedData,
-            Blocks: allBlocks
+            StructuredData: normalizedData
         });
 
     } catch (err) {

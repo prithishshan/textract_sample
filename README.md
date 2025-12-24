@@ -46,6 +46,20 @@ The application follows a standard asynchronous processing flow to handle potent
     *   The backend returns a unified JSON object containing both the raw `Blocks` (for the visual overlay) and the cleaned `StructuredData` (for the form table).
     *   The Angular UI renders the text overlay on the PDF and populates the data table.
 
+## API Endpoints
+
+### `POST /analyze`
+*   **Purpose**: Extracts structured form data with schema validation.
+*   **Input**: `multipart/form-data` with `file` (PDF).
+*   **Output**: JSON object `{ "StructuredData": { ... } }`.
+*   **Details**: Returns simplified, normalized key-value pairs matching `generated_schema.json`.
+
+### `POST /analyze-blocks`
+*   **Purpose**: Returns raw Textract blocks for visual overlays.
+*   **Input**: `multipart/form-data` with `file` (PDF).
+*   **Output**: JSON object `{ "Blocks": [ ... ] }`.
+*   **Details**: Returns the full hierarchy of PAGE, LINE, WORD keywords and bounding boxes.
+
 ## Deployment & Configuration
 
 ### Prerequisites
