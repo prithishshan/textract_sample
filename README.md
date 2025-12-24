@@ -4,7 +4,7 @@ This application demonstrates how to use AWS Textract's `AnalyzeDocument` API (F
 
 ## Technology Stack
 
-*   **Frontend**: Angular 16+ (Standalone Components), TypeScript, CSS (Flexbox/Grid).
+*   **Frontend**: Angular 21+ (Standalone Components), TypeScript, CSS (Flexbox/Grid).
 *   **Backend**: Node.js, Express.js.
 *   **AWS Services**:
     *   **Amazon Textract**: Specifically the `StartDocumentAnalysis` API with `FeatureTypes: ["FORMS"]` for structured data extraction.
@@ -50,7 +50,7 @@ The application follows a standard asynchronous processing flow to handle potent
 ## Deployment & Configuration
 
 ### Prerequisites
-1.  **Node.js**: v14+ installed.
+1.  **Node.js**: v24+ installed.
 2.  **AWS Account**: Active account with permissions to manage Textract and S3.
 
 ### AWS Configuration

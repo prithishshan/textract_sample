@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -6,9 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UploadService {
+  private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/analyze';
-
-  constructor(private http: HttpClient) { }
 
   uploadPdf(file: File): Observable<any> {
     const formData = new FormData();
